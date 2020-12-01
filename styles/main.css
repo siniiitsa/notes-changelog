@@ -1,0 +1,11 @@
+.new-note-field {
+  width: 100%;
+}
+
+.note {
+  display: flex;
+  justify-content: space-between;
+}
+
+.note-btns {
+}
