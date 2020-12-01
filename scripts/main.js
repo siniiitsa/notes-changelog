@@ -8,6 +8,76 @@ const getState = () => {
       };
 };
 
+// Example Redux action
+action = {
+  type: 'addNote',
+  payload: {
+    note: { id: 2, text: 'b' },
+  },
+};
+
+// Experimental code begin
+
+const noteActions = {
+  addNote: (state, payload) => {
+    const { noteId, text } = payload;
+    state.push({ id: noteId, text });
+    return state;
+  },
+  updateNote: (state, payload) => {
+    const { noteId, text } = payload;
+    const note = state.find((n) => n.id === noteId);
+    note.text = text;
+    return state;
+  },
+  removeNote: (state, payload) => {
+    const { noteId } = payload;
+    return state.filter((n) => n.id !== noteId);
+  },
+};
+
+const reducer = (prevState, change) =>
+  noteActions[change.type](prevState, change.payload);
+
+const initState = {
+  changes: [
+    {
+      id: 1,
+      type: 'addNote',
+      timestamp: 1729834797,
+      payload: { noteId: 2, text: 'b' },
+    },
+    {
+      id: 3,
+      type: 'updateNote',
+      timestamp: 17298347974,
+      payload: { noteId: 2, text: 'c' },
+    },
+    {
+      id: 4,
+      type: 'addNote',
+      timestamp: 172983479744,
+      payload: { noteId: 5, text: 'e' },
+    },
+  ],
+};
+
+const calcState = (timestamp) => {
+  const targetChanges = initState.changes.filter(
+    (c) => c.timestamp <= timestamp
+  );
+
+  const newState = targetChanges.reduce((acc, change) => {
+    return reducer(acc, change);
+  });
+
+  console.log(newState);
+};
+
+calcState(17298347974);
+
+// Experimental code end
+
 const state = getState();
 
 const saveState = () => {
