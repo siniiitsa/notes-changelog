@@ -1,6 +1,17 @@
-const state = {
-  notes: [],
-  lastId: 0,
+const getState = () => {
+  const state = localStorage.getItem('notes-changelog-state');
+  return state
+    ? JSON.parse(state)
+    : {
+        notes: [],
+        lastId: 0,
+      };
+};
+
+const state = getState();
+
+const saveState = () => {
+  localStorage.setItem('notes-changelog-state', JSON.stringify(state));
 };
 
 const elements = {
@@ -22,6 +33,7 @@ const render = () => {
   const notesHTML = state.notes.map(stringifyNote).join('');
   elements.notesContainer.innerHTML = notesHTML;
   console.log(state.notes);
+  saveState();
 };
 
 const removeNote = (id) => {
@@ -75,3 +87,5 @@ elements.notesContainer.addEventListener('click', (e) => {
       break;
   }
 });
+
+render();
