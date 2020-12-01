@@ -30,6 +30,26 @@ const removeNote = (id) => {
   render();
 };
 
+const updateNote = (id, text) => {
+  const note = state.notes.find((n) => n.id === id);
+  note.text = text;
+  render();
+};
+
+const makeEditable = (id) => {
+  const textEl = elements.notesContainer.querySelector(
+    `.note[data-id="${id}"] .note-text`
+  );
+  textEl.contentEditable = true;
+  textEl.focus();
+  textEl.onkeydown = (e) => {
+    if (e.key === 'Enter') {
+      const text = textEl.innerText;
+      updateNote(id, text);
+    }
+  };
+};
+
 const addNote = (e) => {
   const formData = new FormData(e.target);
   const note = { text: formData.get('text'), id: ++state.lastId };
@@ -40,11 +60,13 @@ const addNote = (e) => {
 };
 
 elements.newNoteForm.addEventListener('submit', addNote);
+
 elements.notesContainer.addEventListener('click', (e) => {
   const targetClass = e.target.className;
   const noteId = +e.target.closest('.note').dataset.id;
   switch (targetClass) {
     case 'edit-note-btn':
+      makeEditable(noteId);
       break;
     case 'remove-note-btn':
       removeNote(noteId);
