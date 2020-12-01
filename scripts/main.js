@@ -69,7 +69,7 @@ const calcState = (timestamp) => {
 
   const newState = targetChanges.reduce((acc, change) => {
     return reducer(acc, change);
-  });
+  }, []);
 
   console.log(newState);
 };
