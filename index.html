@@ -13,22 +13,15 @@
   <body>
     <main>
       <div class="container">
-        <form action="">
+        <form id="new-note-field" action="javascript:">
           <input
             type="text"
             class="new-note-field"
+            name="text"
             placeholder="Enter some text here..."
           />
         </form>
-        <ul class="notes">
-          <li class="note">
-            <p class="note-text">This is a note</p>
-            <div class="note-btns">
-              <button class="remove-note-btn">❌</button>
-              <button class="edit-note-btn">✏️</button>
-            </div>
-          </li>
-        </ul>
+        <ul id="notes" class="notes"></ul>
       </div>
     </main>
     <script src="scripts/main.js"></script>
