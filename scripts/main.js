@@ -1,9 +1,48 @@
+import createStore from './lib/satate-manager.js';
+
+const store = createStore(reducer);
+
+store.dispatch({
+  id: 1,
+  type: 'addNote',
+  timestamp: 1729834797,
+  payload: { noteId: 2, text: 'b' },
+});
+
+store.subscribe(() => console.log(store.getState()));
+store.subscribe(() => {
+  render(store.getState());
+});
+
 const getState = () => {
   const state = localStorage.getItem('notes-changelog-state');
   return state
     ? JSON.parse(state)
     : {
-        notes: [],
+        notes: {
+          initialState: [],
+          actions: [
+            {
+              id: 1,
+              type: 'addNote',
+              timestamp: 1729834797,
+              payload: { noteId: 2, text: 'b' },
+            },
+            {
+              id: 3,
+              type: 'updateNote',
+              timestamp: 17298347974,
+              payload: { noteId: 2, text: 'c' },
+            },
+            {
+              id: 4,
+              type: 'addNote',
+              timestamp: 172983479744,
+              payload: { noteId: 5, text: 'e' },
+            },
+          ],
+        },
+        povTimestamp: Infinity,
         lastId: 0,
       };
 };
@@ -36,49 +75,28 @@ const noteActions = {
   },
 };
 
-const reducer = (prevState, change) =>
+const notesReducer = (prevState, change) =>
   noteActions[change.type](prevState, change.payload);
 
-const initState = {
-  changes: [
-    {
-      id: 1,
-      type: 'addNote',
-      timestamp: 1729834797,
-      payload: { noteId: 2, text: 'b' },
-    },
-    {
-      id: 3,
-      type: 'updateNote',
-      timestamp: 17298347974,
-      payload: { noteId: 2, text: 'c' },
-    },
-    {
-      id: 4,
-      type: 'addNote',
-      timestamp: 172983479744,
-      payload: { noteId: 5, text: 'e' },
-    },
-  ],
-};
+const state = getState();
 
-const calcState = (timestamp) => {
-  const targetChanges = initState.changes.filter(
-    (c) => c.timestamp <= timestamp
-  );
+const calcState = (timestamp = Infinity) => {
+  // const targetChanges = initState.changes.filter(
+  //   (c) => c.timestamp <= timestamp
+  // );
+  const actions = state.notes.actions.filter((c) => c.timestamp <= timestamp);
 
-  const newState = targetChanges.reduce((acc, change) => {
-    return reducer(acc, change);
-  }, []);
+  const newState = actions.reduce((acc, action) => {
+    return notesReducer(acc, action);
+  }, state.notes.initState);
 
-  console.log(newState);
+  console.log('new state => ', newState);
+  return newState;
 };
 
 calcState(17298347974);
 
 // Experimental code end
-
-const state = getState();
 
 const saveState = () => {
   localStorage.setItem('notes-changelog-state', JSON.stringify(state));
@@ -100,7 +118,8 @@ const stringifyNote = (note) => `
 `;
 
 const render = () => {
-  const notesHTML = state.notes.map(stringifyNote).join('');
+  const newState = calcState();
+  const notesHTML = newState.map(stringifyNote).join('');
   elements.notesContainer.innerHTML = notesHTML;
   console.log(state.notes);
   saveState();
@@ -132,11 +151,16 @@ const makeEditable = (id) => {
   };
 };
 
-const addNote = (e) => {
-  const formData = new FormData(e.target);
-  const note = { text: formData.get('text'), id: ++state.lastId };
-  state.notes.push(note);
-  const input = e.target.text;
+const addNote = () => {
+  const formData = new FormData(elements.newNoteForm);
+  const action = {
+    type: 'addNote',
+    id: ++lastId,
+    timestamp: Math.min(state.povTimestamp, Date.now()),
+    payload: { text: formData.get('text'), noteId: ++state.lastId },
+  };
+  state.notes.actions.push(action);
+  const input = elements.newNoteForm.text;
   input.value = '';
   render();
 };

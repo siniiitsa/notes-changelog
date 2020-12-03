@@ -3,9 +3,18 @@
   width: 100%;
 }
 
+.notes {
+  padding: 0 2em;
+}
+
 .note {
   display: flex;
   justify-content: space-between;
+}
+
+.note-text {
+  box-sizing: border-box;
+  padding: 0.3em;
 }
 
 .timeline {
