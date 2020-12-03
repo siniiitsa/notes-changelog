@@ -1,24 +1,5 @@
 import createStore from './lib/satate-manager.js';
 
-// Counter store
-{
-  const counterMapping = {
-    inc: (state) => state + 1,
-    dec: (state) => state - 1,
-  };
-
-  const counterReducer = (state, action) => counterMapping[action.type](state);
-
-  const counterStore = createStore(0, counterReducer);
-  counterStore.subscribe(() =>
-    console.log('new state => ', counterStore.getState())
-  );
-
-  const inc = () => ({ type: 'inc' });
-  const dec = () => ({ type: 'dec' });
-}
-
-// Notes store
 const notesMapping = {
   addNote(notes, action) {
     return [...notes, action.payload.note];
