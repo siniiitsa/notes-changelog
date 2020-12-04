@@ -1,19 +1,20 @@
-const createStore = (initialState, reducer) => {
-  let hist = [];
+const createStore = ({ initialState, history = [], reducer }) => {
   let listeners = [];
 
   const getState = (timestamp = Infinity) => {
-    const histFragment = hist.filter((v) => v.timestamp <= timestamp);
+    const historySlice = history.filter((v) => v.timestamp <= timestamp);
 
-    const state = histFragment.reduce((state, { action }) => {
+    const state = historySlice.reduce((state, { action }) => {
       return reducer(state, action);
     }, initialState);
 
     return state;
   };
 
+  const getHistory = () => history;
+
   const dispatch = (action) => {
-    hist.push({
+    history.push({
       timestamp: Date.now(),
       action,
     });
@@ -30,6 +31,7 @@ const createStore = (initialState, reducer) => {
 
   return {
     getState,
+    getHistory,
     dispatch,
     subscribe,
   };
