@@ -1,4 +1,4 @@
-import createStore from './lib/satate-manager.js';
+import createStore from './lib/state-manager.js';
 
 const notesMapping = {
   addNote(notes, action) {
@@ -18,7 +18,10 @@ const notesMapping = {
 const notesReducer = (state, action) =>
   notesMapping[action.type](state, action);
 
-const notesStore = createStore([], notesReducer);
+const notesStore = createStore({
+  initialState: [],
+  reducer: notesReducer,
+});
 
 notesStore.subscribe(() => console.log('new state => ', notesStore.getState()));
 
