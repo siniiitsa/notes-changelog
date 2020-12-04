@@ -1,111 +1,28 @@
-import createStore from './lib/satate-manager.js';
+import createStore from './lib/state-manager.js';
+import reducer, { addNote, removeNote, updateNote } from './store/notes.js';
 
-const store = createStore(reducer);
-
-store.dispatch({
-  id: 1,
-  type: 'addNote',
-  timestamp: 1729834797,
-  payload: { noteId: 2, text: 'b' },
-});
-
-store.subscribe(() => console.log(store.getState()));
-store.subscribe(() => {
-  render(store.getState());
-});
-
-const getState = () => {
-  const state = localStorage.getItem('notes-changelog-state');
-  return state
-    ? JSON.parse(state)
-    : {
-        notes: {
-          initialState: [],
-          actions: [
-            {
-              id: 1,
-              type: 'addNote',
-              timestamp: 1729834797,
-              payload: { noteId: 2, text: 'b' },
-            },
-            {
-              id: 3,
-              type: 'updateNote',
-              timestamp: 17298347974,
-              payload: { noteId: 2, text: 'c' },
-            },
-            {
-              id: 4,
-              type: 'addNote',
-              timestamp: 172983479744,
-              payload: { noteId: 5, text: 'e' },
-            },
-          ],
-        },
-        povTimestamp: Infinity,
-        lastId: 0,
-      };
+const initialState = {
+  notes: [],
+  povTimestamp: 0,
 };
 
-// Example Redux action
-action = {
-  type: 'addNote',
-  payload: {
-    note: { id: 2, text: 'b' },
-  },
-};
-
-// Experimental code begin
-
-const noteActions = {
-  addNote: (state, payload) => {
-    const { noteId, text } = payload;
-    state.push({ id: noteId, text });
-    return state;
-  },
-  updateNote: (state, payload) => {
-    const { noteId, text } = payload;
-    const note = state.find((n) => n.id === noteId);
-    note.text = text;
-    return state;
-  },
-  removeNote: (state, payload) => {
-    const { noteId } = payload;
-    return state.filter((n) => n.id !== noteId);
-  },
-};
-
-const notesReducer = (prevState, change) =>
-  noteActions[change.type](prevState, change.payload);
-
-const state = getState();
-
-const calcState = (timestamp = Infinity) => {
-  // const targetChanges = initState.changes.filter(
-  //   (c) => c.timestamp <= timestamp
-  // );
-  const actions = state.notes.actions.filter((c) => c.timestamp <= timestamp);
-
-  const newState = actions.reduce((acc, action) => {
-    return notesReducer(acc, action);
-  }, state.notes.initState);
-
-  console.log('new state => ', newState);
-  return newState;
-};
-
-calcState(17298347974);
-
-// Experimental code end
-
-const saveState = () => {
-  localStorage.setItem('notes-changelog-state', JSON.stringify(state));
-};
+const store = createStore({ initialState, reducer });
+const { dispatch, getState, subscribe } = store;
 
 const elements = {
   newNoteForm: document.querySelector('#new-note-field'),
   notesContainer: document.querySelector('#notes'),
 };
+
+const render = (state) => {
+  const notesHTML = state.notes.map(stringifyNote).join('');
+  elements.notesContainer.innerHTML = notesHTML;
+};
+
+subscribe(() => render(getState()));
+subscribe(() => {
+  console.log('State => ', getState());
+});
 
 const stringifyNote = (note) => `
   <li data-id="${note.id}" class="note">
@@ -117,27 +34,7 @@ const stringifyNote = (note) => `
   </li>
 `;
 
-const render = () => {
-  const newState = calcState();
-  const notesHTML = newState.map(stringifyNote).join('');
-  elements.notesContainer.innerHTML = notesHTML;
-  console.log(state.notes);
-  saveState();
-};
-
-const removeNote = (id) => {
-  const newNotes = state.notes.filter((n) => n.id !== id);
-  state.notes = newNotes;
-  render();
-};
-
-const updateNote = (id, text) => {
-  const note = state.notes.find((n) => n.id === id);
-  note.text = text;
-  render();
-};
-
-const makeEditable = (id) => {
+const handleMakeEditable = (id) => {
   const textEl = elements.notesContainer.querySelector(
     `.note[data-id="${id}"] .note-text`
   );
@@ -146,40 +43,34 @@ const makeEditable = (id) => {
   textEl.onkeydown = (e) => {
     if (e.key === 'Enter') {
       const text = textEl.innerText;
-      updateNote(id, text);
+      dispatch(updateNote(id, text));
     }
   };
 };
 
-const addNote = () => {
+const handleAddNote = () => {
   const formData = new FormData(elements.newNoteForm);
-  const action = {
-    type: 'addNote',
-    id: ++lastId,
-    timestamp: Math.min(state.povTimestamp, Date.now()),
-    payload: { text: formData.get('text'), noteId: ++state.lastId },
-  };
-  state.notes.actions.push(action);
+  const text = formData.get('text');
+  dispatch(addNote(text));
   const input = elements.newNoteForm.text;
   input.value = '';
-  render();
 };
 
-elements.newNoteForm.addEventListener('submit', addNote);
+elements.newNoteForm.addEventListener('submit', handleAddNote);
 
 elements.notesContainer.addEventListener('click', (e) => {
   const targetClass = e.target.className;
   const noteId = +e.target.closest('.note').dataset.id;
   switch (targetClass) {
     case 'edit-note-btn':
-      makeEditable(noteId);
+      handleMakeEditable(noteId);
       break;
     case 'remove-note-btn':
-      removeNote(noteId);
+      dispatch(removeNote(id));
       break;
     default:
       break;
   }
 });
 
-render();
+render(getState());
