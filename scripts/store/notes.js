@@ -29,18 +29,18 @@ export const updateNote = (id, text) => ({
 const mapping = {
   [ADD_NOTE](state, action) {
     const { note } = action.payload;
-    state.notes.push(note);
-    return state;
+    const notes = [...state.notes, note];
+    return { ...state, notes };
   },
   [REMOVE_NOTE](state, action) {
     const { id } = action.payload;
-    state.notes = state.notes.filter((n) => n.id !== id);
-    return state;
+    const notes = state.notes.filter((n) => n.id !== id);
+    return { ...state, notes };
   },
   [UPDATE_NOTE](state, action) {
     const { id, text } = action.payload;
-    state.notes = state.notes.map((n) => (n.id === id ? { ...n, text } : n));
-    return state;
+    const notes = state.notes.map((n) => (n.id === id ? { ...n, text } : n));
+    return { ...state, notes };
   },
 };
 
