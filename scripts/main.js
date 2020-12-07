@@ -6,7 +6,14 @@ const initialState = {
   povTimestamp: 0,
 };
 
-const store = createStore({ initialState, reducer });
+const saveHistory = (history) => {
+  localStorage.setItem('notes-changelog-history', JSON.stringify(history));
+};
+
+const loadHistory = () =>
+  JSON.parse(localStorage.getItem('notes-changelog-history') || '[]');
+
+const store = createStore({ initialState, loadHistory, saveHistory, reducer });
 const { dispatch, getState, subscribe } = store;
 
 const elements = {

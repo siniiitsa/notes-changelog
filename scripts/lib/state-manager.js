@@ -1,4 +1,10 @@
-const createStore = ({ initialState, history = [], reducer }) => {
+const createStore = ({
+  initialState,
+  saveHistory,
+  loadHistory,
+  history = loadHistory?.() || [],
+  reducer,
+}) => {
   let listeners = [];
 
   const getState = (timestamp = Infinity) => {
@@ -19,6 +25,7 @@ const createStore = ({ initialState, history = [], reducer }) => {
       action,
     });
 
+    saveHistory?.(getHistory());
     listeners.forEach((fn) => fn());
   };
 
