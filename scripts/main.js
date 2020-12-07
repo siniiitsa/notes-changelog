@@ -19,6 +19,7 @@ const { dispatch, getState, subscribe } = store;
 const elements = {
   newNoteForm: document.querySelector('#new-note-field'),
   notesContainer: document.querySelector('#notes'),
+  datePicker: document.querySelector('#date-picker'),
 };
 
 const render = (state) => {
@@ -78,6 +79,11 @@ elements.notesContainer.addEventListener('click', (e) => {
     default:
       break;
   }
+});
+
+elements.datePicker.addEventListener('change', (e) => {
+  const timestamp = new Date(elements.datePicker.value).getTime();
+  render(getState(timestamp));
 });
 
 render(getState());
