@@ -73,7 +73,7 @@ elements.notesContainer.addEventListener('click', (e) => {
       handleMakeEditable(noteId);
       break;
     case 'remove-note-btn':
-      dispatch(removeNote(id));
+      dispatch(removeNote(noteId));
       break;
     default:
       break;
