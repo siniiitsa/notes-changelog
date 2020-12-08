@@ -83,9 +83,14 @@ elements.notesContainer.addEventListener('click', (e) => {
   }
 });
 
-elements.prevBtn.addEventListener('click', () => {});
+elements.prevBtn.addEventListener('click', () => {
+  const date = new Date(store.getPrevTimestamp());
+  date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+  elements.datePicker.valueAsNumber = date;
+  render(getState(+date));
+});
 
-elements.datePicker.addEventListener('change', (e) => {
+elements.datePicker.addEventListener('change', () => {
   const timestamp = new Date(elements.datePicker.value).getTime();
   render(getState(timestamp));
 });

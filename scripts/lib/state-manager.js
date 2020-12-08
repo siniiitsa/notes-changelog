@@ -23,6 +23,14 @@ const createStore = ({
 
   const getHistory = () => history;
 
+  const getPrevTimestamp = (timestamp = store.timestamp || Infinity) => {
+    const allPrev = history.filter((item) => item.timestamp < timestamp);
+    return allPrev[allPrev.length - 1]?.timestamp;
+  };
+
+  const getNextTimestamp = (timestamp = store.timestamp || Infinity) =>
+    history.find((item) => item.timestamp > timestamp)?.timestamp;
+
   const dispatch = (action) => {
     history.push({
       timestamp: store.timestamp || Date.now(),
@@ -42,6 +50,8 @@ const createStore = ({
 
   const store = {
     timestamp: Infinity,
+    getPrevTimestamp,
+    getNextTimestamp,
     getState,
     getHistory,
     dispatch,
