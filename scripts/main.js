@@ -13,12 +13,14 @@ const saveHistory = (history) => {
 const loadHistory = () =>
   JSON.parse(localStorage.getItem('notes-changelog-history') || '[]');
 
-const store = createStore({ initialState, loadHistory, saveHistory, reducer });
+window.store = createStore({ initialState, loadHistory, saveHistory, reducer });
 const { dispatch, getState, subscribe } = store;
 
 const elements = {
   newNoteForm: document.querySelector('#new-note-field'),
   notesContainer: document.querySelector('#notes'),
+  prevBtn: document.querySelector('#prev-btn'),
+  nextBtn: document.querySelector('#next-btn'),
   datePicker: document.querySelector('#date-picker'),
 };
 
@@ -27,9 +29,9 @@ const render = (state) => {
   elements.notesContainer.innerHTML = notesHTML;
 };
 
-subscribe(() => render(getState()));
+subscribe(() => render(getState(store.timestamp)));
 subscribe(() => {
-  console.log('State => ', getState());
+  console.log('State => ', getState(store.timestamp));
 });
 
 const stringifyNote = (note) => `
@@ -80,6 +82,8 @@ elements.notesContainer.addEventListener('click', (e) => {
       break;
   }
 });
+
+elements.prevBtn.addEventListener('click', () => {});
 
 elements.datePicker.addEventListener('change', (e) => {
   const timestamp = new Date(elements.datePicker.value).getTime();

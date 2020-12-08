@@ -10,9 +10,13 @@ const createStore = ({
   const getState = (timestamp = Infinity) => {
     const historySlice = history.filter((v) => v.timestamp <= timestamp);
 
-    const state = historySlice.reduce((state, { action }) => {
-      return reducer(state, action);
-    }, initialState);
+    const state = historySlice
+      .sort((a, b) => a.timestamp - b.timestamp)
+      .reduce((state, { action }) => {
+        return reducer(state, action);
+      }, initialState);
+
+    store.timestamp = timestamp === Infinity ? undefined : timestamp;
 
     return state;
   };
@@ -21,7 +25,7 @@ const createStore = ({
 
   const dispatch = (action) => {
     history.push({
-      timestamp: Date.now(),
+      timestamp: store.timestamp || Date.now(),
       action,
     });
 
@@ -36,12 +40,15 @@ const createStore = ({
     };
   };
 
-  return {
+  const store = {
+    timestamp: Infinity,
     getState,
     getHistory,
     dispatch,
     subscribe,
   };
+
+  return store;
 };
 
 export default createStore;
