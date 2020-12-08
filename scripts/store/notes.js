@@ -1,9 +1,3 @@
-// Helpers
-const getId = (() => {
-  let id = 0;
-  return () => ++id;
-})();
-
 // Constants
 const ADD_NOTE = 'notes/note-added';
 const REMOVE_NOTE = 'notes/note-removed';
@@ -12,7 +6,7 @@ const UPDATE_NOTE = 'notes/note-updated';
 // Actions
 export const addNote = (text) => ({
   type: ADD_NOTE,
-  payload: { note: { id: getId(), text } },
+  payload: { text },
 });
 
 export const removeNote = (id) => ({
@@ -28,8 +22,9 @@ export const updateNote = (id, text) => ({
 // Reducer
 const mapping = {
   [ADD_NOTE](state, action) {
-    const { note } = action.payload;
-    const notes = [...state.notes, note];
+    const { text } = action.payload;
+    const id = Math.max(0, ...state.notes.map((n) => n.id)) + 1;
+    const notes = [...state.notes, { id, text }];
     return { ...state, notes };
   },
   [REMOVE_NOTE](state, action) {
